@@ -8,6 +8,11 @@
 $ npm install
 ```
 
+## Environment Setup
+```bash
+$ cp .example.env .env
+```
+
 ## Running the app
 
 ```bash
@@ -20,6 +25,8 @@ $ npm run start:dev
 # production mode
 $ npm run start:prod
 ```
+## API Docs
+API Documentation is available on [localhost](http://localhost:3000/api) or `/api` route.
 
 ## Test
 
@@ -34,3 +41,4 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+---
