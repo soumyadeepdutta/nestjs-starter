@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  email     String   @unique
+  firstname String
+  lastname  String
+  password  String
+  // role      Role     @default(USER)
+  // posts     Post[]
+  clinic    Clinic?
+  doctor    Doctor?
+  patient   Patient?
+}
+
+model Clinic {
+  id      Int               @id @default(autoincrement())
+  user    User              @relation(fields: [userId], references: [id])
+  userId  Int               @unique
+  doctors DoctorsOnClinic[]
+}
+
+model Doctor {
+  id      Int               @id @default(autoincrement())
+  user    User              @relation(fields: [userId], references: [id])
+  userId  Int               @unique
+  clinics DoctorsOnClinic[]
+}
+
+model DoctorsOnClinic {
+  id           Int           @id @default(autoincrement())
+  clinic       Clinic        @relation(fields: [clinicId], references: [id])
+  clinicId     Int
+  doctor       Doctor        @relation(fields: [doctorId], references: [id])
+  doctorId     Int
+  createdAt    DateTime      @default(now())
+  timeslots    Timeslot[]
+  appointments Appointment[]
+
+  @@unique([clinicId, doctorId])
+}
+
+model Patient {
+  id     Int  @id @default(autoincrement())
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique
+}
+
+model Timeslot {
+  id               Int             @id @default(autoincrement())
+  doctorOnClinic   DoctorsOnClinic @relation(fields: [doctorOnClinicId], references: [id])
+  doctorOnClinicId Int
+  date             DateTime        @db.Date
+  when             DateTime        @db.Timestamp()
+  appointment      Appointment?
+}
+
+model Appointment {
+  id               Int             @id @default(autoincrement())
+  status           Int
+  payment          Payment?
+  doctorOnClinic   DoctorsOnClinic @relation(fields: [doctorOnClinicId], references: [id])
+  doctorOnClinicId Int
+  timeslot         Timeslot        @relation(fields: [timeslotId], references: [id])
+  timeslotId       Int             @unique
+}
+
+model Payment {
+  id            Int         @id @default(autoincrement())
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  appointmentId Int         @unique
+  status        Int
+}
