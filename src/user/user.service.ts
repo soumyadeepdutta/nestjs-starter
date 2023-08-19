@@ -8,21 +8,29 @@ export class UserService {
 
   /**
    * Get one user of matching condition
-   * @param userWhereUniqueInput search condition like { email: 'john@example.com' }
+   * @param email user email string
+   * @param isSafe if false select the password column
    * @returns User object or null
    */
-  async getUserByEmail(email: string): Promise<User | null> {
-    return this.prisma.user.findFirst({ where: { email: email } });
+  async getUserByEmail(
+    email: string,
+    isSafe: boolean = true,
+  ): Promise<User | null> {
+    const user = await this.prisma.user.findFirst({ where: { email: email } });
+    if (!isSafe) return user;
+    delete user.password;
+    return user;
   }
 
   /**
    * Creates a new user with unique email
    * @param data `{ firstname: '', lastname: '', email: '', password: ''}`
-   * @returns 
+   * @returns
    */
-  async createUser(data: Prisma.UserCreateInput): Promise<User>{
-    const existingUser = await this.getUserByEmail(data.email)
-    if(existingUser) throw new BadRequestException('User alerady exists with this email')
-    return this.prisma.user.create({data})
+  async createUser(data: Prisma.UserCreateInput): Promise<User> {
+    const existingUser = await this.getUserByEmail(data.email);
+    if (existingUser)
+      throw new BadRequestException('User alerady exists with this email');
+    return this.prisma.user.create({ data });
   }
 }
